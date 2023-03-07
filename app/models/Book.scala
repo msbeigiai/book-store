@@ -26,6 +26,7 @@ object BookActor {
   case class AddBook(book: Book)
   case class FindById(id: Int)
   case class UpdateBook(book: Book)
+  case class DeleteBook(book: Book)
 }
 
 class BookActor extends Actor with ActorLogging {
@@ -48,6 +49,10 @@ class BookActor extends Actor with ActorLogging {
     case UpdateBook(updatedBook) =>
       log.info(s"Updating book with id ${updatedBook.id}")
       books = books.map(book => if (book.id == updatedBook.id) updatedBook else book)
+
+    case DeleteBook(book) =>
+      log.warning(s"Deleting book with id ${book.id}")
+      books = books - book
 
   }
 }

@@ -72,24 +72,25 @@ class BooksController @Inject()(cc: ControllerComponents)
         bookActor ! UpdateBook(book)
         Redirect(routes.BooksController.index()).flashing("success" -> "Book saved!")
       }
-      /*book => {
-        val oldBook = (bookActor ? FindById(book.id)).mapTo[Option[Book]]
-        oldBook.map {
-          case Some(v) =>
-            (bookActor ? UpdateBook(v)).mapTo[Set[Book]]
-            Redirect(routes.BooksController.index()).flashing("success" -> "Book saved!")
-          case None => NotFound("Book not found.")
-        }
-      }*/
     )
 
   }
 
-  def destroy(id: Int): Action[AnyContent] = Action { implicit request =>
-    ???
+  def destroy(id: Int): Action[AnyContent] = Action.async { implicit request =>
+    val foundBook = (bookActor ? FindById(id)).mapTo[Option[Book]]
+    foundBook.map {
+      case Some(v) =>
+        bookActor ! DeleteBook(v)
+        Redirect(routes.BooksController.index()).flashing("success" -> s"Book $v successfully deleted!")
+      case None => NotFound("Not found")
+    }
   }
 
-  def show(id: Int): Action[AnyContent] = Action { implicit request =>
-    ???
+  def show(id: Int): Action[AnyContent] = Action.async { implicit request =>
+    val foundBook = (bookActor ? FindById(id)).mapTo[Option[Book]]
+    foundBook.map {
+      case Some(v) => Ok(views.html.books.show(v))
+      case None => NotFound("Not found")
+    }
   }
 }
