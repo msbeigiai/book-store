@@ -1,0 +1,6 @@
+target
+/.bsp
+/.idea
+/logs
+/app/playground
+/RUNNING_PID
