@@ -1,25 +1,16 @@
-@(booksForm: Form[Book])(implicit messages: Messages)
 @import helper._
+@import views.html.books.layout
+@(booksForm: Form[Book])(implicit messages: Messages)
+    @layout("Edit Book") {
+    <h1>Edit Book</h1>
 
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Edit Book</title>
-    </head>
-    <body>
-        <h1>Edit Book</h1>
+    @form(action = routes.BooksController.update) {
+        @helper.inputText(booksForm("id"))
+        @helper.inputText(booksForm("title"))
+        @helper.inputText(booksForm("price"))
+        @helper.inputText(booksForm("author"))
 
-        @form(action = routes.BooksController.update) {
-            @helper.inputText(booksForm("id"))
-            @helper.inputText(booksForm("title"))
-            @helper.inputText(booksForm("price"))
-            @helper.inputText(booksForm("author"))
+        <input type="submit" value="Edit Book">
+    }
+}
 
-            <input type="submit" value="Edit Book">
-            }
-
-    </body>
-</html>

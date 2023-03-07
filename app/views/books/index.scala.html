@@ -1,20 +1,13 @@
+@import views.html.books.layout
 @(books: Set[Book])
+@layout("All Books") {
+    <h1>All Books</h1>
 
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Books</title>
-    </head>
-    <body>
-        <h1>All Books</h1>
+    @for(book <- books) {
+        <a href="@routes.BooksController.show(book.id)">@book.title</a>
+        <p>Price: @book.price</p>
+        <p>Author: @book.author</p>
+    }
 
-        @for(book <- books) {
-            <a href="@routes.BooksController.show(book.id)">@book.title</a>
-            <p>Price: @book.price</p>
-            <p>Author: @book.author</p>
-        }
-    </body>
-</html>
+    <a href="@routes.BooksController.create()">Create Book</a>
+}
