@@ -6,7 +6,7 @@ import play.api.data.Forms._
 
 object BookForms {
 
-  val bookForm = Form(
+  val bookForm: Form[Book] = Form(
     mapping(
       "id" -> number,
       "title" -> text,

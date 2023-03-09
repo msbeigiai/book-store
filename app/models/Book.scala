@@ -1,8 +1,11 @@
 package models
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import dao.BookDAO
 
-case class Book(id: Int, title: String, price: Int, author: String) {}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+case class Book(id: Int, title: String, price: Int, author: String)
 
 /*object Book {
   var books: Set[Book] = Set(
@@ -27,6 +30,7 @@ object BookActor {
   case class FindById(id: Int)
   case class UpdateBook(book: Book)
   case class DeleteBook(book: Book)
+
 }
 
 class BookActor extends Actor with ActorLogging {
@@ -40,7 +44,7 @@ class BookActor extends Actor with ActorLogging {
 
     case AddBook(book) =>
       log.info(s"Adding new book $book to the database.")
-      books = books + book
+
 
     case FindById(id) =>
       log.info(s"Finding book by id $id")

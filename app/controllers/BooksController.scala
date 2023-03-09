@@ -2,21 +2,20 @@ package controllers
 
 import akka.actor.{ActorSystem, Props}
 import models.{Book, BookActor}
-import play.api.data.Form
-import play.api.data.Forms._
-
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import scala.concurrent.duration._
 import play.api.mvc.{AbstractController, Action, AnyContent, BaseController, ControllerComponents, Request, Result}
+import slick.jdbc.JdbcProfile
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
 
-class BooksController @Inject()(cc: ControllerComponents)
+class BooksController @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, cc: ControllerComponents)
+                               (implicit ec: ExecutionContext)
   extends AbstractController(cc)
-  with play.api.i18n.I18nSupport {
+  with play.api.i18n.I18nSupport
+  with HasDatabaseConfigProvider[JdbcProfile] {
 
   val system = ActorSystem("BookSystem")
   val bookActor = system.actorOf(Props[BookActor], "bookActor")
@@ -33,6 +32,7 @@ class BooksController @Inject()(cc: ControllerComponents)
     for {
       books <- booksFuture
     } yield {
+      val resultBooks: Future[Seq[Book]] = db.run(Book.filter)
       Ok(views.html.books.index(books))
     }
 
