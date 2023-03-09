@@ -1,8 +1,11 @@
 package controllers
 
 import akka.actor.{ActorSystem, Props}
+import dao.BookDAO
 import models.{Book, BookActor}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import play.api.i18n.I18nSupport
+
 import scala.concurrent.duration._
 import play.api.mvc.{AbstractController, Action, AnyContent, BaseController, ControllerComponents, Request, Result}
 import slick.jdbc.JdbcProfile
@@ -11,14 +14,13 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
-class BooksController @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, cc: ControllerComponents)
+class BooksController @Inject()(bookDAO: BookDAO, cc: ControllerComponents)
                                (implicit ec: ExecutionContext)
   extends AbstractController(cc)
-  with play.api.i18n.I18nSupport
-  with HasDatabaseConfigProvider[JdbcProfile] {
+  with I18nSupport {
 
   val system = ActorSystem("BookSystem")
-  val bookActor = system.actorOf(Props[BookActor], "bookActor")
+  val bookActor = system.actorOf(BookActor.props(bookDAO), "bookActor")
 
   import BookActor._
   import akka.pattern.ask
@@ -28,11 +30,16 @@ class BooksController @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   import forms.BookForms._
 
   def index(): Action[AnyContent] = Action.async { implicit request =>
-    val booksFuture = (bookActor ? AllBooks).mapTo[Set[Book]]
+    /*val booksFuture = (bookActor ? AllBooks).mapTo[Set[Book]]
     for {
       books <- booksFuture
     } yield {
-      val resultBooks: Future[Seq[Book]] = db.run(Book.filter)
+      Ok(views.html.books.index(books))
+    }*/
+    val booksFuture = (bookActor ? AllBooks).mapTo[Seq[Book]]
+    for {
+      books <- booksFuture
+    } yield {
       Ok(views.html.books.index(books))
     }
 
@@ -49,7 +56,7 @@ class BooksController @Inject()(protected val dbConfigProvider: DatabaseConfigPr
       },
       book => {
         bookActor ! AddBook(book)
-        Redirect(routes.BooksController.index()).flashing("success" -> "Book saved!")
+        Redirect(routes.BooksController.index()).flashing("success" -> "Book added successfully!")
       }
     )
   }

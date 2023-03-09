@@ -1,8 +1,11 @@
 package models
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.pattern.pipe
 import dao.BookDAO
+import play.api.Configuration
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Book(id: Int, title: String, price: Int, author: String)
@@ -31,20 +34,21 @@ object BookActor {
   case class UpdateBook(book: Book)
   case class DeleteBook(book: Book)
 
+  def props(bookDAO: BookDAO): Props = Props(new BookActor(bookDAO))
 }
 
-class BookActor extends Actor with ActorLogging {
+class BookActor @Inject() (bookDAO: BookDAO) extends Actor with ActorLogging {
 
   import BookActor._
 
   override def receive: Receive = {
     case AllBooks =>
       log.info("Getting all books.")
-      sender() ! books
+      bookDAO.allBooks().pipeTo(sender())
 
     case AddBook(book) =>
       log.info(s"Adding new book $book to the database.")
-
+      bookDAO.insert(book)
 
     case FindById(id) =>
       log.info(s"Finding book by id $id")
