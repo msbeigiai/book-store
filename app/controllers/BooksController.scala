@@ -29,7 +29,7 @@ class BooksController @Inject()(bookDAO: BookDAO, cc: ControllerComponents)
 
   import forms.BookForms._
 
-  def index(): Action[AnyContent] = Action.async { implicit request =>
+  def index: Action[AnyContent] = Action.async { implicit request =>
     /*val booksFuture = (bookActor ? AllBooks).mapTo[Set[Book]]
     for {
       books <- booksFuture
@@ -56,7 +56,7 @@ class BooksController @Inject()(bookDAO: BookDAO, cc: ControllerComponents)
       },
       book => {
         bookActor ! AddBook(book)
-        Redirect(routes.BooksController.index()).flashing("success" -> "Book added successfully!")
+        Redirect(routes.BooksController.index).flashing("success" -> "Book added successfully!")
       }
     )
   }
@@ -70,14 +70,14 @@ class BooksController @Inject()(bookDAO: BookDAO, cc: ControllerComponents)
 
   }
 
-  def update(): Action[AnyContent] = Action { implicit request =>
+  def update: Action[AnyContent] = Action { implicit request =>
     bookForm.bindFromRequest.fold (
       formWithErrors => {
         BadRequest(views.html.books.create(formWithErrors))
       },
       book => {
         bookActor ! UpdateBook(book)
-        Redirect(routes.BooksController.index()).flashing("success" -> "Book saved!")
+        Redirect(routes.BooksController.index).flashing("success" -> "Book saved!")
       }
     )
 

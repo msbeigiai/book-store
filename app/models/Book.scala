@@ -52,15 +52,15 @@ class BookActor @Inject() (bookDAO: BookDAO) extends Actor with ActorLogging {
 
     case FindById(id) =>
       log.info(s"Finding book by id $id")
-      sender() ! books.find(_.id == id)
+      bookDAO.findById(id).pipeTo(sender())/*.mapTo[Option[Book]]*/
 
     case UpdateBook(updatedBook) =>
       log.info(s"Updating book with id ${updatedBook.id}")
-      books = books.map(book => if (book.id == updatedBook.id) updatedBook else book)
+      bookDAO.updateBook(updatedBook)
 
     case DeleteBook(book) =>
       log.warning(s"Deleting book with id ${book.id}")
-      books = books - book
+      bookDAO.deleteBook(book)
 
   }
 }

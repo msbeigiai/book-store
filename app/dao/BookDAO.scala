@@ -34,4 +34,16 @@ class BookDAO @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)
 
   def allBooks(): Future[Seq[Book]] =
     db.run(bookTable.to[Seq].result)
+
+  def updateBook(book: Book): Future[Unit] = {
+    val bookToUpdate = book.copy(book.id)
+    db.run(bookTable.filter(_.id === bookToUpdate.id).update(bookToUpdate)).map(_ => ())
+  }
+
+  def findById(id: Int): Future[Option[Book]] =
+    db.run(bookTable.filter(_.id === id).result.headOption)
+
+  def deleteBook(book: Book): Future[Unit] =
+    db.run(bookTable.filter(_.id === book.id).delete).map(_ => ())
+
 }
